@@ -1,26 +1,37 @@
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
 
+if (typeof process.loadEnvFile === "function") {
+  try {
+    process.loadEnvFile();
+  } catch {
+    // .env file is optional (env vars can be passed via process.env directly)
+  }
+}
+
 const app = express();
-const port = 7000;
+const port = process.env.PORT || 5000;
 
 // MongoDB connection
-const mongoUrl = "mongodb://admin:admin123@localhost:27017";
-const databaseName = "library_db";
+const mongoUrl = process.env.MONGO_URI;
+const databaseName = process.env.DB_NAME || "library_db";
+
+if (!mongoUrl) {
+  console.error("Error: MONGO_URI environment variable is required.");
+  process.exit(1);
+}
 
 const client = new MongoClient(mongoUrl);
 
 let db;
-await client
-  .connect()
-  .then(() => {
-    db = client.db(databaseName);
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("Failed to connect to MongoDB", err);
-    process.exit(1);
-  });
+try {
+  await client.connect();
+  db = client.db(databaseName);
+  console.log("Connected to MongoDB");
+} catch (err) {
+  console.error("Failed to connect to MongoDB:", err.message || err);
+  process.exit(1);
+}
 
 // Middleware
 app.use(express.json());
