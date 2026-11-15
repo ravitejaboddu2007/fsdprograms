@@ -4,19 +4,25 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5000;
 
 //Middleware
 app.use(express.json());
 
 // MongoDB connection
-const mongoUrl = process.env.MONGO_FULL_URI;
+const mongoUrl = process.env.MONGO_URI || process.env.MONGO_FULL_URI;
+const dbName = process.env.DB_NAME || "movies_db";
+
+if (!mongoUrl) {
+  console.error("Error: MONGO_URI environment variable is required.");
+  process.exit(1);
+}
 
 try {
-  await mongoose.connect(mongoUrl);
+  await mongoose.connect(mongoUrl, { dbName });
   console.log("Connected to MongoDB");
 } catch (err) {
-  console.error("Failed to connect to MongoDB", err);
+  console.error("Failed to connect to MongoDB:", err.message || err);
   process.exit(1);
 }
 

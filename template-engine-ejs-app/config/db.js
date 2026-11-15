@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
 
-const connectDB = async (mongoURI, dbName) => {
+const connectDB = async (mongoURI, dbName = "productsDB") => {
   try {
-    await mongoose.connect(mongoURI, {
-      dbName: dbName,
-    });
+    await mongoose.connect(mongoURI, { dbName });
     console.log(`MongoDB connected to database: ${dbName}`);
   } catch (error) {
-    console.error("MongoDB connection failed:", error.message);
+    console.error("MongoDB connection failed:", error.message || error);
     process.exit(1);
   }
 };

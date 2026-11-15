@@ -7,11 +7,21 @@ import userRoutes from "./routes/userRoutes.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 5000;
 const mongoURI = process.env.MONGO_URI;
-const dbName = process.env.DB_NAME;
+const dbName = process.env.DB_NAME || "todoDB";
 
-connectDB(mongoURI, dbName);
+if (!mongoURI) {
+  console.error("Error: MONGO_URI environment variable is required.");
+  process.exit(1);
+}
+
+if (!process.env.JWT_SECRET) {
+  console.error("Error: JWT_SECRET environment variable is required.");
+  process.exit(1);
+}
+
+await connectDB(mongoURI, dbName);
 app.use(express.json());
 
 // Routes for todo API

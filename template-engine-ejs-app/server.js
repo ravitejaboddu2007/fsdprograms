@@ -12,11 +12,19 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 
 dotenv.config();
-await connectDB(process.env.MONGO_URI, process.env.DB_NAME);
+
+const PORT = process.env.PORT || 5000;
+const mongoURI = process.env.MONGO_URI;
+const dbName = process.env.DB_NAME || "productsDB";
+
+if (!mongoURI) {
+  console.error("Error: MONGO_URI environment variable is required.");
+  process.exit(1);
+}
+
+await connectDB(mongoURI, dbName);
 const app = express();
 app.use(express.json());
-
-const PORT = process.env.PORT || 9500;
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));

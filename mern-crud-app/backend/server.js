@@ -13,15 +13,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(morgan("dev"));
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 const mongoUri = process.env.MONGO_URI;
-const dbName = process.env.DB_NAME;
+const dbName = process.env.DB_NAME || "mern_crud_app";
+
+if (!mongoUri) {
+  console.error("Error: MONGO_URI environment variable is required.");
+  process.exit(1);
+}
 
 // Connect to MongoDB
-mongoose
-  .connect(mongoUri, { dbName })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Failed to connect to MongoDB", err));
+try {
+  await mongoose.connect(mongoUri, { dbName });
+  console.log("Connected to MongoDB");
+} catch (err) {
+  console.error("Failed to connect to MongoDB:", err.message || err);
+  process.exit(1);
+}
 
   // Define the Post schema and model
 const postSchema = new mongoose.Schema({
